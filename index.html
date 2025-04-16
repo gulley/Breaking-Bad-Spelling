@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breaking Bad Element Spelling</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0D0D0D;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #4D7E3E;
+            margin-bottom: 30px;
+        }
+        .input-container {
+            margin-bottom: 30px;
+        }
+        #word-input {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 2px solid #4D7E3E;
+            background-color: #222;
+            color: white;
+            border-radius: 4px;
+            width: 60%;
+            max-width: 300px;
+        }
+        #submit-btn {
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: #4D7E3E;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        #submit-btn:hover {
+            background-color: #3A662E;
+        }
+        #result-container {
+            min-height: 200px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .element-box {
+            width: 100px;
+            height: 100px;
+            border: 3px solid #4D7E3E;
+            margin: 5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #4D7E3E;
+            position: relative;
+            opacity: 0;
+            transform: rotateX(90deg);
+            transition: all 0.5s ease;
+        }
+        .element-symbol {
+            font-family: 'Courier New', monospace;
+            font-size: 40px;
+            font-weight: bold;
+            color: white;
+        }
+        .element-number {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 12px;
+            color: white;
+        }
+        .element-name {
+            font-size: 12px;
+            margin-top: 5px;
+            color: white;
+        }
+        .element-weight {
+            font-size: 10px;
+            color: white;
+        }
+        .no-spelling {
+            color: #BB5522;
+            font-size: 24px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Breaking Bad Element Spelling</h1>
+        <div class="input-container">
+            <input type="text" id="word-input" placeholder="Enter a word or name">
+            <button id="submit-btn">Break It</button>
+        </div>
+        <div id="result-container"></div>
+    </div>
+
+    <script>
+        // Periodic Table Elements (abbreviations, names, atomic numbers, weights)
+        const elements = [
+            { symbol: 'H', name: 'Hydrogen', number: 1, weight: 1.008 },
+            { symbol: 'He', name: 'Helium', number: 2, weight: 4.0026 },
+            { symbol: 'Li', name: 'Lithium', number: 3, weight: 6.94 },
+            { symbol: 'Be', name: 'Beryllium', number: 4, weight: 9.0122 },
+            { symbol: 'B', name: 'Boron', number: 5, weight: 10.81 },
+            { symbol: 'C', name: 'Carbon', number: 6, weight: 12.011 },
+            { symbol: 'N', name: 'Nitrogen', number: 7, weight: 14.007 },
+            { symbol: 'O', name: 'Oxygen', number: 8, weight: 15.999 },
+            { symbol: 'F', name: 'Fluorine', number: 9, weight: 18.998 },
+            { symbol: 'Ne', name: 'Neon', number: 10, weight: 20.180 },
+            { symbol: 'Na', name: 'Sodium', number: 11, weight: 22.990 },
+            { symbol: 'Mg', name: 'Magnesium', number: 12, weight: 24.305 },
+            { symbol: 'Al', name: 'Aluminum', number: 13, weight: 26.982 },
+            { symbol: 'Si', name: 'Silicon', number: 14, weight: 28.085 },
+            { symbol: 'P', name: 'Phosphorus', number: 15, weight: 30.974 },
+            { symbol: 'S', name: 'Sulfur', number: 16, weight: 32.06 },
+            { symbol: 'Cl', name: 'Chlorine', number: 17, weight: 35.45 },
+            { symbol: 'Ar', name: 'Argon', number: 18, weight: 39.948 },
+            { symbol: 'K', name: 'Potassium', number: 19, weight: 39.098 },
+            { symbol: 'Ca', name: 'Calcium', number: 20, weight: 40.078 },
+            { symbol: 'Sc', name: 'Scandium', number: 21, weight: 44.956 },
+            { symbol: 'Ti', name: 'Titanium', number: 22, weight: 47.867 },
+            { symbol: 'V', name: 'Vanadium', number: 23, weight: 50.942 },
+            { symbol: 'Cr', name: 'Chromium', number: 24, weight: 51.996 },
+            { symbol: 'Mn', name: 'Manganese', number: 25, weight: 54.938 },
+            { symbol: 'Fe', name: 'Iron', number: 26, weight: 55.845 },
+            { symbol: 'Co', name: 'Cobalt', number: 27, weight: 58.933 },
+            { symbol: 'Ni', name: 'Nickel', number: 28, weight: 58.693 },
+            { symbol: 'Cu', name: 'Copper', number: 29, weight: 63.546 },
+            { symbol: 'Zn', name: 'Zinc', number: 30, weight: 65.38 },
+            { symbol: 'Ga', name: 'Gallium', number: 31, weight: 69.723 },
+            { symbol: 'Ge', name: 'Germanium', number: 32, weight: 72.630 },
+            { symbol: 'As', name: 'Arsenic', number: 33, weight: 74.922 },
+            { symbol: 'Se', name: 'Selenium', number: 34, weight: 78.971 },
+            { symbol: 'Br', name: 'Bromine', number: 35, weight: 79.904 },
+            { symbol: 'Kr', name: 'Krypton', number: 36, weight: 83.798 },
+            { symbol: 'Rb', name: 'Rubidium', number: 37, weight: 85.468 },
+            { symbol: 'Sr', name: 'Strontium', number: 38, weight: 87.62 },
+            { symbol: 'Y', name: 'Yttrium', number: 39, weight: 88.906 },
+            { symbol: 'Zr', name: 'Zirconium', number: 40, weight: 91.224 },
+            { symbol: 'Nb', name: 'Niobium', number: 41, weight: 92.906 },
+            { symbol: 'Mo', name: 'Molybdenum', number: 42, weight: 95.95 },
+            { symbol: 'Tc', name: 'Technetium', number: 43, weight: 98 },
+            { symbol: 'Ru', name: 'Ruthenium', number: 44, weight: 101.07 },
+            { symbol: 'Rh', name: 'Rhodium', number: 45, weight: 102.91 },
+            { symbol: 'Pd', name: 'Palladium', number: 46, weight: 106.42 },
+            { symbol: 'Ag', name: 'Silver', number: 47, weight: 107.87 },
+            { symbol: 'Cd', name: 'Cadmium', number: 48, weight: 112.41 },
+            { symbol: 'In', name: 'Indium', number: 49, weight: 114.82 },
+            { symbol: 'Sn', name: 'Tin', number: 50, weight: 118.71 },
+            { symbol: 'Sb', name: 'Antimony', number: 51, weight: 121.76 },
+            { symbol: 'Te', name: 'Tellurium', number: 52, weight: 127.60 },
+            { symbol: 'I', name: 'Iodine', number: 53, weight: 126.90 },
+            { symbol: 'Xe', name: 'Xenon', number: 54, weight: 131.29 },
+            { symbol: 'Cs', name: 'Cesium', number: 55, weight: 132.91 },
+            { symbol: 'Ba', name: 'Barium', number: 56, weight: 137.33 },
+            { symbol: 'La', name: 'Lanthanum', number: 57, weight: 138.91 },
+            { symbol: 'Ce', name: 'Cerium', number: 58, weight: 140.12 },
+            { symbol: 'Pr', name: 'Praseodymium', number: 59, weight: 140.91 },
+            { symbol: 'Nd', name: 'Neodymium', number: 60, weight: 144.24 },
+            { symbol: 'Pm', name: 'Promethium', number: 61, weight: 145 },
+            { symbol: 'Sm', name: 'Samarium', number: 62, weight: 150.36 },
+            { symbol: 'Eu', name: 'Europium', number: 63, weight: 151.96 },
+            { symbol: 'Gd', name: 'Gadolinium', number: 64, weight: 157.25 },
+            { symbol: 'Tb', name: 'Terbium', number: 65, weight: 158.93 },
+            { symbol: 'Dy', name: 'Dysprosium', number: 66, weight: 162.50 },
+            { symbol: 'Ho', name: 'Holmium', number: 67, weight: 164.93 },
+            { symbol: 'Er', name: 'Erbium', number: 68, weight: 167.26 },
+            { symbol: 'Tm', name: 'Thulium', number: 69, weight: 168.93 },
+            { symbol: 'Yb', name: 'Ytterbium', number: 70, weight: 173.05 },
+            { symbol: 'Lu', name: 'Lutetium', number: 71, weight: 174.97 },
+            { symbol: 'Hf', name: 'Hafnium', number: 72, weight: 178.49 },
+            { symbol: 'Ta', name: 'Tantalum', number: 73, weight: 180.95 },
+            { symbol: 'W', name: 'Tungsten', number: 74, weight: 183.84 },
+            { symbol: 'Re', name: 'Rhenium', number: 75, weight: 186.21 },
+            { symbol: 'Os', name: 'Osmium', number: 76, weight: 190.23 },
+            { symbol: 'Ir', name: 'Iridium', number: 77, weight: 192.22 },
+            { symbol: 'Pt', name: 'Platinum', number: 78, weight: 195.08 },
+            { symbol: 'Au', name: 'Gold', number: 79, weight: 196.97 },
+            { symbol: 'Hg', name: 'Mercury', number: 80, weight: 200.59 },
+            { symbol: 'Tl', name: 'Thallium', number: 81, weight: 204.38 },
+            { symbol: 'Pb', name: 'Lead', number: 82, weight: 207.2 },
+            { symbol: 'Bi', name: 'Bismuth', number: 83, weight: 208.98 },
+            { symbol: 'Po', name: 'Polonium', number: 84, weight: 209 },
+            { symbol: 'At', name: 'Astatine', number: 85, weight: 210 },
+            { symbol: 'Rn', name: 'Radon', number: 86, weight: 222 },
+            { symbol: 'Fr', name: 'Francium', number: 87, weight: 223 },
+            { symbol: 'Ra', name: 'Radium', number: 88, weight: 226 },
+            { symbol: 'Ac', name: 'Actinium', number: 89, weight: 227 },
+            { symbol: 'Th', name: 'Thorium', number: 90, weight: 232.04 },
+            { symbol: 'Pa', name: 'Protactinium', number: 91, weight: 231.04 },
+            { symbol: 'U', name: 'Uranium', number: 92, weight: 238.03 },
+            { symbol: 'Np', name: 'Neptunium', number: 93, weight: 237 },
+            { symbol: 'Pu', name: 'Plutonium', number: 94, weight: 244 },
+            { symbol: 'Am', name: 'Americium', number: 95, weight: 243 },
+            { symbol: 'Cm', name: 'Curium', number: 96, weight: 247 },
+            { symbol: 'Bk', name: 'Berkelium', number: 97, weight: 247 },
+            { symbol: 'Cf', name: 'Californium', number: 98, weight: 251 },
+            { symbol: 'Es', name: 'Einsteinium', number: 99, weight: 252 },
+            { symbol: 'Fm', name: 'Fermium', number: 100, weight: 257 },
+            { symbol: 'Md', name: 'Mendelevium', number: 101, weight: 258 },
+            { symbol: 'No', name: 'Nobelium', number: 102, weight: 259 },
+            { symbol: 'Lr', name: 'Lawrencium', number: 103, weight: 266 },
+            { symbol: 'Rf', name: 'Rutherfordium', number: 104, weight: 267 },
+            { symbol: 'Db', name: 'Dubnium', number: 105, weight: 268 },
+            { symbol: 'Sg', name: 'Seaborgium', number: 106, weight: 269 },
+            { symbol: 'Bh', name: 'Bohrium', number: 107, weight: 270 },
+            { symbol: 'Hs', name: 'Hassium', number: 108, weight: 277 },
+            { symbol: 'Mt', name: 'Meitnerium', number: 109, weight: 278 },
+            { symbol: 'Ds', name: 'Darmstadtium', number: 110, weight: 281 },
+            { symbol: 'Rg', name: 'Roentgenium', number: 111, weight: 282 },
+            { symbol: 'Cn', name: 'Copernicium', number: 112, weight: 285 },
+            { symbol: 'Nh', name: 'Nihonium', number: 113, weight: 286 },
+            { symbol: 'Fl', name: 'Flerovium', number: 114, weight: 289 },
+            { symbol: 'Mc', name: 'Moscovium', number: 115, weight: 290 },
+            { symbol: 'Lv', name: 'Livermorium', number: 116, weight: 293 },
+            { symbol: 'Ts', name: 'Tennessine', number: 117, weight: 294 },
+            { symbol: 'Og', name: 'Oganesson', number: 118, weight: 294 }
+        ];
+
+        // Map element symbols to elements for quick lookup
+        const elementMap = {};
+        elements.forEach(element => {
+            elementMap[element.symbol.toLowerCase()] = element;
+        });
+
+        // Find all possible ways to break a word into element symbols
+        function findElementCombinations(word) {
+            word = word.toLowerCase();
+            
+            // Dynamic programming approach to find all possible ways to break the word
+            const dp = new Array(word.length + 1).fill(null);
+            dp[0] = []; // Empty combination for empty string
+            
+            for (let i = 1; i <= word.length; i++) {
+                for (let j = 0; j < i; j++) {
+                    // If we can build up to position j
+                    if (dp[j] !== null) {
+                        // Check if substring from j to i is a valid element symbol
+                        const symbol = word.substring(j, i);
+                        if (elementMap[symbol]) {
+                            if (dp[i] === null) {
+                                dp[i] = [];
+                            }
+                            
+                            // For each combination that leads to j, add a new combination with this symbol
+                            dp[j].forEach(combo => {
+                                dp[i].push([...combo, symbol]);
+                            });
+                            
+                            // If j is 0, this is the start of a new combination
+                            if (j === 0) {
+                                dp[i].push([symbol]);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Return the combinations that cover the whole word
+            return dp[word.length] || [];
+        }
+
+        // Display the spelling with element boxes
+        function displayElementSpelling(combination) {
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = '';
+            
+            // For each element symbol in the combination
+            combination.forEach((symbol, index) => {
+                const element = elementMap[symbol];
+                
+                // Create element box
+                const box = document.createElement('div');
+                box.className = 'element-box';
+                
+                // Element symbol
+                const symbolDiv = document.createElement('div');
+                symbolDiv.className = 'element-symbol';
+                symbolDiv.textContent = element.symbol;
+                
+                // Element number
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'element-number';
+                numberDiv.textContent = element.number;
+                
+                // Element name
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'element-name';
+                nameDiv.textContent = element.name;
+                
+                // Element weight
+                const weightDiv = document.createElement('div');
+                weightDiv.className = 'element-weight';
+                weightDiv.textContent = element.weight;
+                
+                // Append all divs to box
+                box.appendChild(symbolDiv);
+                box.appendChild(numberDiv);
+                box.appendChild(nameDiv);
+                box.appendChild(weightDiv);
+                
+                // Add box to result container
+                resultContainer.appendChild(box);
+                
+                // Trigger animation with delay based on index
+                setTimeout(() => {
+                    box.style.opacity = '1';
+                    box.style.transform = 'rotateX(0deg)';
+                }, index * 200);
+            });
+        }
+
+        // Display "No spelling possible" message
+        function displayNoSpelling() {
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = '<div class="no-spelling">No spelling possible</div>';
+        }
+
+        // Process input in real-time
+        document.getElementById('word-input').addEventListener('input', function() {
+            const word = this.value.trim();
+            
+            if (word) {
+                // Find all possible combinations
+                const combinations = findElementCombinations(word);
+                
+                // If at least one combination exists, display the first one
+                if (combinations && combinations.length > 0) {
+                    displayElementSpelling(combinations[0]);
+                } else {
+                    displayNoSpelling();
+                }
+            } else {
+                // Clear the result container if input is empty
+                document.getElementById('result-container').innerHTML = '';
+            }
+        });
+        
+        // Keep the button for mobile users or accessibility
+        document.getElementById('submit-btn').addEventListener('click', function() {
+            const word = document.getElementById('word-input').value.trim();
+            
+            if (word) {
+                // Find all possible combinations
+                const combinations = findElementCombinations(word);
+                
+                // If at least one combination exists, display the first one
+                if (combinations && combinations.length > 0) {
+                    displayElementSpelling(combinations[0]);
+                } else {
+                    displayNoSpelling();
+                }
+            }
+        });
+
+        // Also trigger on Enter key press
+        document.getElementById('word-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('submit-btn').click();
+            }
+        });
+    </script>
+</body>
+</html>
